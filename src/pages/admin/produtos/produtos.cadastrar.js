@@ -1,0 +1,166 @@
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+
+import MenuAdmin from '../../../components/menu-admin.js';
+import Copyright from '../../../components/footerCopyright.js';
+import api from '../../../services/api.js';
+import { getToken } from '../../../services/auth.js';
+import { logout } from '../../../services/auth.js';
+
+import Button from '@mui/material/Button';
+import { LinearProgress } from '@mui/material';
+
+const defaultTheme = createTheme();
+
+export default function ProdutosCadastrar() {
+  const [nome, setNome_produto] = useState('');
+  const [descricao, setDescricao_produto] = useState('');
+  const [preco, setPreco_produto] = useState('');
+  const [quantidade, setQtd_produto] = useState('');
+
+  const [redirect, setRedirect] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  async function handleSubmit() {
+    const data = {
+      nome_produto: nome,
+      descricao_produto: descricao,
+      preco_produto: preco,
+      qtd_produto: quantidade,
+    };
+    const response = await api.post('/api/produtos', data);
+
+    if (response.status === 200) {
+      window.location.href = '/admin/produtos';
+    } else {
+      alert('Erro ao cadastrar');
+    }
+  }
+  useEffect(() => {
+    async function verificar() {
+      try {
+        const res = await api.get('/api/usuarios/checktoken', {
+          params: { token: getToken() },
+        });
+
+        if (res.data.status === 200) {
+          setLoading(false);
+          setRedirect(false);
+          console.log('Usuário autorizado');
+        } else {
+          logout();
+          setLoading(false);
+          setRedirect(true);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar token:', error);
+        // Trate o erro conforme necessário
+      }
+    }
+    setTimeout(() => verificar(), 1000);
+    //verificar();
+  }, []);
+
+  return loading ? (
+    <LinearProgress />
+  ) : redirect ? (
+    <Navigate to='/admin/login' />
+  ) : (
+    <ThemeProvider theme={defaultTheme}>
+      <Box sx={{ display: 'flex' }}>
+        <MenuAdmin title={'CADASTRAR PRODUTOS'} />
+        <Box
+          component='main'
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'light'
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+            flexGrow: 1,
+            height: '100vh',
+            overflow: 'auto',
+          }}
+        >
+          <Toolbar />
+          <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              <Grid item sm={12}>
+                <Paper style={{ padding: '20px' }}>
+                  <h2>Formulário de cadastro de produtos</h2>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={12}>
+                      <TextField
+                        required
+                        id='nome'
+                        name='nome'
+                        label='Nome do produto'
+                        fullWidth
+                        autoComplete='nome'
+                        variant='standard'
+                        value={nome}
+                        onChange={(e) => setNome_produto(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        required
+                        id='descricao'
+                        name='descricao'
+                        label='Descrição'
+                        fullWidth
+                        variant='standard'
+                        value={descricao}
+                        onChange={(e) => setDescricao_produto(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        required
+                        id='preco'
+                        name='preco'
+                        label='Preço do produto'
+                        fullWidth
+                        autoComplete='preco'
+                        variant='standard'
+                        value={preco}
+                        onChange={(e) => setPreco_produto(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        required
+                        id='quantidade'
+                        name='quantidade'
+                        label='quantidade'
+                        fullWidth
+                        autoComplete='quantidade'
+                        variant='standard'
+                        value={quantidade}
+                        onChange={(e) => setQtd_produto(e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={12}>
+                      <Button variant='contained' onClick={handleSubmit}>
+                        Cadastrar
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              </Grid>
+            </Grid>
+            <Copyright sx={{ pt: 4 }} />
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+}
