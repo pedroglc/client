@@ -21,14 +21,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useState } from 'react';
 import api from '../../../services/api.js';
-import {
-  login,
-  setIdUsuario,
-  setNomeUsuario,
-  setTipoUsuario,
-} from '../../../services/auth.js';
+import { login, setIdUsuario, setNomeUsuario } from '../../../services/auth.js';
 import CircularProgress from '@mui/material/CircularProgress';
-import { width } from '@mui/system';
 
 function Copyright(props) {
   return (
