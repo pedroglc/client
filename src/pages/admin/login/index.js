@@ -147,9 +147,7 @@ export default function SignIn() {
               sx={{ width: '100%', marginTop: '10px' }}
               variant='outlined'
             >
-              <InputLabel htmlFor='password' labelWidth={120}>
-                Digite sua senha
-              </InputLabel>
+              <InputLabel htmlFor='password'>Digite sua senha</InputLabel>
               <OutlinedInput
                 id='password'
                 type={showPassword ? 'text' : 'password'}
